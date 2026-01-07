@@ -17,9 +17,34 @@ class HomePageTest(TestCase):
         self.assertContains(response, '<input name="item_text"')
 
     def test_can_save_a_POST_request(self):
+        self.client.post("/", data={"item_text": "A new list item"})
+        
+        # เช็คแค่เรื่อง Database
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, "A new list item")
+        
+    def test_redirects_after_POST(self):
         response = self.client.post("/", data={"item_text": "A new list item"})
-        self.assertContains(response, "A new list item")
-        self.assertTemplateUsed(response, "home.html")
+        
+        # เช็คแค่เรื่อง Redirect
+        self.assertRedirects(response, "/")
+        
+    def test_only_saves_items_when_necessary(self):
+        self.client.get("/") # ลองแค่เข้าหน้าเว็บเฉยๆ (GET)
+        self.assertEqual(Item.objects.count(), 0)
+        
+    def test_displays_all_list_items(self):
+        # 1. Arrange (เตรียมของ): สร้างข้อมูลจำลอง 2 ตัวลง Database
+        Item.objects.create(text="itemey 1")
+        Item.objects.create(text="itemey 2")
+
+        # 2. Act (กระทำ): สั่งให้โหลดหน้าเว็บ
+        response = self.client.get("/")
+
+        # 3. Assert (ตรวจสอบ): เช็คว่าในหน้าเว็บมีคำว่า itemey 1 และ 2 โผล่มาไหม
+        self.assertContains(response, "itemey 1")
+        self.assertContains(response, "itemey 2")
         
 class ItemModelTest(TestCase):
     def test_saving_and_retrieving_items(self):
