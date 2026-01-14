@@ -22,4 +22,5 @@ from lists import views
 urlpatterns = [
     path("", home_page, name="home"),
     path("lists/", include("lists.urls")),
+    path('about/', views.about_page, name='about'),
 ]
