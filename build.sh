@@ -9,4 +9,4 @@ pip install -r requirements.txt
 python manage.py collectstatic --no-input
 
 # 3. สร้างตารางใน Database (สำคัญมาก! ถ้าไม่ทำ เว็บจะ Error หาตารางไม่เจอ)
-python manage.py migrate
+python manage.py migrate    
