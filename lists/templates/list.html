@@ -7,6 +7,12 @@
         <form method="POST" action="/lists/{{ list.id }}/add_item">
             <input name="item_text" id="id_new_item" placeholder="Enter a to-do item" />
             {% csrf_token %}
+            <select name="priority" id="id_priority">
+            <option value="high">High</option>
+            <option value="medium" selected>Medium</option>
+            <option value="low">Low</option>
+        </select>
+        <input type="submit" value="Add Item"> </form>
         </form>
         <table id="id_list_table">
           {% for item in list.item_set.all %}  
