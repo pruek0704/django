@@ -6,6 +6,7 @@ import time
 import unittest
 from django.test import LiveServerTestCase
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.support.ui import Select
 
 MAX_WAIT = 10
 
@@ -38,13 +39,17 @@ class NewVisitorTest(LiveServerTestCase):
         # She types "Buy peacock feathers" into a text box
         # (Edith's hobby is tying fly-fishing lures)
         inputbox.send_keys("Buy peacock feathers")  
+        
+        # [NEW] เธอเห็นว่ามี Dropdown ให้เลือกความสำคัญ เธอเลือก 'High'
+        # (เราสมมติว่า id ของ dropdown คือ id_priority)
+        select_box = Select(self.browser.find_element(By.ID, "id_priority"))
+        select_box.select_by_visible_text('High')
 
         # When she hits enter, the page updates, and now the page lists
         # "1: Buy peacock feathers" as an item in a to-do list table
         inputbox.send_keys(Keys.ENTER)  
         time.sleep(1)  
-        self.check_for_row_in_list_table("1: Buy peacock feathers")
-
+        self.wait_for_row_in_list_table("1: Buy peacock feathers (High)")
 
         table = self.browser.find_element(By.ID, "id_list_table")
         rows = table.find_elements(By.TAG_NAME, "tr")  
