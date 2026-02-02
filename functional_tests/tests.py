@@ -1,3 +1,4 @@
+import os
 import unittest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -12,6 +13,10 @@ MAX_WAIT = 10
 class NewVisitorTest(StaticLiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Chrome()
+        # ตรวจสอบว่ามีตัวแปร environment ชื่อ TEST_SERVER หรือไม่
+        if test_server := os.environ.get("TEST_SERVER"):
+            # ถ้ามี ให้เปลี่ยน live_server_url เป็นที่อยู่ของ server นั้น
+            self.live_server_url = "http://" + test_server
 
     def tearDown(self):
         self.browser.quit()
