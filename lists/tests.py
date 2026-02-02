@@ -3,8 +3,6 @@ from django.http import HttpRequest
 from lists.views import home_page
 from lists.models import Item, List
 
-
-
 class HomePageTest(TestCase):
     def test_uses_list_template(self):
         mylist = List.objects.create()
@@ -19,6 +17,15 @@ class HomePageTest(TestCase):
     def test_only_saves_items_when_necessary(self):
         self.client.get("/") # ลองแค่เข้าหน้าเว็บเฉยๆ (GET)
         self.assertEqual(Item.objects.count(), 0)
+        
+    def test_renders_input_form(self):
+        response = self.client.get("/")
+        self.assertContains(response, '<form method="POST" action="/lists/new">')
+        self.assertContains(
+            response,
+            '<input name="item_text" id="id_new_item" placeholder="Enter a to-do item" class="form-control input-lg" />',
+            html=True,
+        )
         
 class NewListTest(TestCase):
     def test_can_save_a_POST_request(self):
@@ -82,6 +89,21 @@ class ListViewTest(TestCase):
         self.assertContains(response, "itemey 1")
         self.assertContains(response, "itemey 2")
         self.assertNotContains(response, "other list item")  
+        
+    def test_renders_input_form(self):
+        mylist = List.objects.create()
+        response = self.client.get(f"/lists/{mylist.id}/")
+        
+        self.assertContains(
+            response,
+            f'<form method="POST" action="/lists/{mylist.id}/add_item">',
+        )
+        
+        self.assertContains(
+            response,
+            '<input name="item_text" id="id_new_item" placeholder="Enter a to-do item" class="form-control input-lg" />',
+            html=True,
+        )
         
 class NewItemTest(TestCase):
     def test_can_save_a_POST_request_to_an_existing_list(self):

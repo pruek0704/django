@@ -1,22 +1,49 @@
-<html>
+<!doctype html>
+<html lang="en">
   <head>
     <title>To-Do lists</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   </head>
   <body>
-    <h1>{% block header_text %}{% endblock %}</h1>
+    <div class="container">
 
-    <form method="POST" action="{% block form_action %}{% endblock %}">
-      <input name="item_text" id="id_new_item" placeholder="Enter a to-do item" />
-      
-      <select name="priority" id="id_priority">
-          <option value="High">High</option>
-          <option value="Medium" selected>Medium</option>
-          <option value="Low">Low</option>
-      </select>
+      <div class="row justify-content-center p-5 bg-body-tertiary rounded-3 mt-5">
+        <div class="col-lg-6 text-center">
+          <h1 class="display-1 mb-4">{% block header_text %}{% endblock %}</h1>
 
-      {% csrf_token %}
-    </form>
-    {% block table %}
-    {% endblock %}
+          <form method="POST" action="{% block form_action %}{% endblock %}">
+            
+            <input
+              name="item_text"
+              id="id_new_item"
+              placeholder="Enter a to-do item"
+              class="form-control form-control-lg mb-3" 
+            />
+            
+            <div class="mb-3">
+                <select name="priority" id="id_priority" class="form-select">
+                    <option value="High">High</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100">Add Item</button>
+
+            {% csrf_token %}
+          </form>
+        </div>
+      </div>
+
+      <div class="row justify-content-center mt-4">
+        <div class="col-lg-6">
+          {% block table %}
+          {% endblock %}
+        </div>
+      </div>
+
+    </div>
   </body>
 </html>
