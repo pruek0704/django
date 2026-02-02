@@ -70,6 +70,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         inputbox = self.browser.find_element(By.ID, "id_new_item")
         inputbox.send_keys("Buy milk")
         inputbox.send_keys(Keys.ENTER)
+        time.sleep(1)
         # แอนเช็คว่ามี "Buy milk (Medium)" บน bode_text
         body_text = self.browser.find_element(By.TAG_NAME, "body").text
         self.assertIn("Buy milk (Medium)", body_text)
