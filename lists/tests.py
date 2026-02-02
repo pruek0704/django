@@ -1,3 +1,6 @@
+import lxml.html
+from django.test import TestCase
+from lists.models import Item, List
 from django.test import TestCase
 from django.http import HttpRequest  
 from lists.views import home_page
@@ -20,12 +23,17 @@ class HomePageTest(TestCase):
         
     def test_renders_input_form(self):
         response = self.client.get("/")
-        self.assertContains(response, '<form method="POST" action="/lists/new">')
-        self.assertContains(
-            response,
-            '<input name="item_text" id="id_new_item" placeholder="Enter a to-do item" class="form-control input-lg" />',
-            html=True,
-        )
+        parsed = lxml.html.fromstring(response.content)
+        [form] = parsed.cssselect("form[method=POST]")
+        self.assertEqual(form.get("action"), "/lists/new")
+
+        # 1. เช็คพวกที่เป็น <input> (เช่น item_text, csrf_token)
+        inputs = form.cssselect("input")
+        self.assertIn("item_text", [input.get("name") for input in inputs])
+
+        # 2. เช็คพวกที่เป็น <select> (Dropdown Priority ของเรา) <-- แก้ตรงนี้
+        selects = form.cssselect("select")
+        self.assertIn("priority", [select.get("name") for select in selects])
         
 class NewListTest(TestCase):
     def test_can_save_a_POST_request(self):
@@ -93,17 +101,17 @@ class ListViewTest(TestCase):
     def test_renders_input_form(self):
         mylist = List.objects.create()
         response = self.client.get(f"/lists/{mylist.id}/")
-        
-        self.assertContains(
-            response,
-            f'<form method="POST" action="/lists/{mylist.id}/add_item">',
-        )
-        
-        self.assertContains(
-            response,
-            '<input name="item_text" id="id_new_item" placeholder="Enter a to-do item" class="form-control input-lg" />',
-            html=True,
-        )
+        parsed = lxml.html.fromstring(response.content)
+        [form] = parsed.cssselect("form[method=POST]")
+        self.assertEqual(form.get("action"), f"/lists/{mylist.id}/add_item")
+
+        # 1. เช็ค input
+        inputs = form.cssselect("input")
+        self.assertIn("item_text", [input.get("name") for input in inputs])
+
+        # 2. เช็ค select <-- แก้ตรงนี้เหมือนกัน
+        selects = form.cssselect("select")
+        self.assertIn("priority", [select.get("name") for select in selects])
         
 class NewItemTest(TestCase):
     def test_can_save_a_POST_request_to_an_existing_list(self):
