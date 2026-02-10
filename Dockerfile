@@ -1,12 +1,11 @@
-FROM python:3.12-slim
-
+FROM python:3.14-slim
 RUN python -m venv /venv
 ENV PATH="/venv/bin:$PATH"
 
-# แก้บรรทัดนี้: เพิ่ม whitenoise ต่อท้าย
-RUN pip install "django<6" whitenoise
+# ก๊อปปี้ไฟล์ requirements ไปวางในเครื่อง container แล้วสั่งติดตั้ง
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
 
 COPY src /src
 WORKDIR /src
-
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8888"]
+CMD ["gunicorn", "--bind", ":8888", "superlists.wsgi:application"]

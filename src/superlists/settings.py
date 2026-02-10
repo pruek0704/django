@@ -26,6 +26,8 @@ SECRET_KEY = 'django-insecure-@6an)e-d#3bv))6@$6*+0xbjk+(&0a9ddgt!woc1@%vxrslg@v
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+# อนุญาตให้เว็บ Hugging Face ส่งข้อมูลหากันได้
+CSRF_TRUSTED_ORIGINS = ['https://pruek0704-django-docker.hf.space']
 
 
 # Application definition

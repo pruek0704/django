@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.http import HttpResponse
 from lists.models import Item, List
 
@@ -48,3 +48,13 @@ def add_item(request, list_id):
         priority=priority_input  
     )
     return redirect(f"/lists/{our_list.id}/")
+
+def edit_item(request, item_id):
+    item = get_object_or_404(Item, id=item_id)
+    
+    if request.method == 'POST':
+        item.text = request.POST.get('item_text')
+        item.priority = request.POST.get('priority')
+        item.save()
+        return redirect(f'/lists/{item.list.id}/')
+    return render(request, 'edit_text.html', {'item': item})
