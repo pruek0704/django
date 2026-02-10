@@ -15,17 +15,20 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# --- ส่วนที่ปรับปรุงเพื่อรองรับ Docker และ Production ---
+if "DJANGO_DEBUG_FALSE" in os.environ:
+    DEBUG = False
+    SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
+    ALLOWED_HOSTS = [os.environ["DJANGO_ALLOWED_HOST"]]
+    db_path = os.environ["DJANGO_DB_PATH"]
+else:
+    # SECURITY WARNING: keep the secret key used in production secret!
+    SECRET_KEY = 'django-insecure-@6an)e-d#3bv))6@$6*+0xbjk+(&0a9ddgt!woc1@%vxrslg@v'
+    # SECURITY WARNING: don't run with debug turned on in production!
+    DEBUG = True
+    ALLOWED_HOSTS = ['*']
+    db_path = BASE_DIR / 'db.sqlite3'
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-@6an)e-d#3bv))6@$6*+0xbjk+(&0a9ddgt!woc1@%vxrslg@v'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['*']
 # อนุญาตให้เว็บ Hugging Face ส่งข้อมูลหากันได้
 CSRF_TRUSTED_ORIGINS = ['https://pruek0704-django-docker.hf.space']
 
@@ -43,8 +46,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -127,17 +130,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = BASE_DIR / "static"
 
-if "DJANGO_DEBUG_FALSE" in os.environ:
-    DEBUG = False
-    SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
-    ALLOWED_HOSTS = [os.environ["DJANGO_ALLOWED_HOST"]]
-    db_path = os.environ["DJANGO_DB_PATH"]
-else:
-    DEBUG = True
-    SECRET_KEY = "insecure-key-for-dev"
-    ALLOWED_HOSTS = []
-    db_path = BASE_DIR / "db.sqlite3"
-    
+# Logging configuration
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
