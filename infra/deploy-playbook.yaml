@@ -48,6 +48,13 @@
         force_source: true
         state: present
 
+    - name: Ensure db.sqlite3 file exists outside container
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/db.sqlite3"
+        state: touch
+        owner: 1234  
+      become: true
+
     - name: Run container
       community.docker.docker_container:
         name: superlists
@@ -55,9 +62,17 @@
         state: started
         recreate: true
         env:
-          DJANGO_SECRET_KEY: "something-super-secret-and-unique"
-          DJANGO_DEBUG: "True"
+          DJANGO_SECRET_KEY: "รหัสลับของคุณ"
           DJANGO_ALLOWED_HOST: "52.230.104.136"
           DJANGO_DB_PATH: "/home/nonroot/db.sqlite3"
+        mounts:
+          - type: bind
+            source: "{{ ansible_env.HOME }}/db.sqlite3"
+            target: /home/nonroot/db.sqlite3
         ports:
           - "80:8888"
+
+    - name: Run migration inside container
+      community.docker.docker_container_exec:
+        container: superlists
+        command: ./manage.py migrate
