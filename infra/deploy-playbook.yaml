@@ -58,4 +58,6 @@
           DJANGO_SECRET_KEY: "something-super-secret-and-unique"
           DJANGO_DEBUG: "True"
           DJANGO_ALLOWED_HOST: "52.230.104.136"
-          DJANGO_DB_PATH: "/src/database/db.sqlite3"
+          DJANGO_DB_PATH: "/home/nonroot/db.sqlite3"
+        ports:
+          - "80:8888"
