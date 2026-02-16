@@ -33,7 +33,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
         time.sleep(1)
         # ชัยเช็คว่ามี "Buy peacock feathers (High)" บน tag body_text
         body_text = self.browser.find_element(By.TAG_NAME, "body").text
-        self.assertIn("Buy peacock feathers (High)", body_text)
+        self.assertIn("Buy peacock feathers", body_text)
+        self.assertIn("High", body_text)
         # ชัยพิมพ์ "Use peacock feathers to make a fly" เพิ่มลงไปใน inputbox
         inputbox = self.browser.find_element(By.ID, "id_new_item")
         inputbox.send_keys("Use peacock feathers to make a fly")
@@ -41,8 +42,48 @@ class NewVisitorTest(StaticLiveServerTestCase):
         time.sleep(2)
         # ชัยเช็คว่ามี "Buy peacock feathers (High)" และ "Use peacock feathers to make a fly (Medium)" บน tag body_text
         body_text = self.browser.find_element(By.TAG_NAME, "body").text
-        self.assertIn("Buy peacock feathers (High)", body_text)
-        self.assertIn("Use peacock feathers to make a fly (Medium)", body_text)
+        self.assertIn("Buy peacock feathers", body_text)
+        self.assertIn("High", body_text)
+        self.assertIn("Use peacock feathers to make a fly", body_text)
+        self.assertIn("Medium", body_text)
+        
+        edit_button = self.browser.find_element(By.LINK_TEXT, "Edit")
+        edit_button.click()
+        # ชัยสังเกตเห็นว่า URL เปลี่ยนไปเป็นหน้าแก้ไข (มีคำว่า /edit_item/)
+        self.assertRegex(self.browser.current_url, '/lists/edit_item/.+')
+
+        # ชัยเห็นว่าในกล่องข้อความ มีข้อความเดิม "Buy peacock feathers" ใส่รอไว้ให้แล้ว
+        inputbox = self.browser.find_element(By.NAME, 'item_text')
+        self.assertEqual(inputbox.get_attribute('value'), 'Buy peacock feathers')
+
+        # ชัยเห็นว่าในกล่อง Priority ก็มีค่าเดิม "High" ใส่รอไว้ให้เช่นกัน
+        # (แก้ไข: ใช้ Select แทน input ธรรมดา)
+        priority_select = Select(self.browser.find_element(By.NAME, 'priority'))
+        self.assertEqual(priority_select.first_selected_option.text, 'High')
+
+        # ชัยตัดสินใจเปลี่ยนข้อความใหม่เป็น "Buy giant peacock feathers"
+        inputbox.clear()
+        inputbox.send_keys('Buy giant peacock feathers')
+
+        # ชัยเปลี่ยนความสำคัญ (Priority) เป็น "Critical" (ด่วนสุดๆ)
+        # (แก้ไข: ใช้ select_by_visible_text แทน .clear()/.send_keys())
+        priority_select.select_by_visible_text('Low')
+
+        # ชัยกดปุ่ม Save เพื่อบันทึกการแก้ไข
+        save_button = self.browser.find_element(By.CSS_SELECTOR, "button[type='submit']")
+        save_button.click()
+        
+        time.sleep(1)
+
+        # ชัยถูกพากลับมาหน้าเดิม และเช็คว่ารายการเปลี่ยนเป็น "Buy giant peacock feathers (Critical)" แล้ว
+        body_text = self.browser.find_element(By.TAG_NAME, "body").text
+        self.assertIn("Buy giant peacock feathers", body_text)
+        self.assertIn("Low", body_text)
+        
+        # ชัยเช็คเพื่อความชัวร์ว่าข้อความเก่า "Buy peacock feathers (High)" หายไปแล้ว
+        self.assertNotIn("Buy peacock feathers", body_text)
+        
+        
         
     def test_multiple_users_can_start_lists_at_different_urls(self):
         # ชัยเปิดหน้าเว็บ
@@ -54,7 +95,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
         time.sleep(1)
         # ชัยเช็คว่ามี "Buy peacock feathers (Medium)" บน tag body_text
         body_text = self.browser.find_element(By.TAG_NAME, "body").text
-        self.assertIn("Buy peacock feathers (Medium)", body_text)
+        self.assertIn("Buy peacock feathers", body_text)
+        self.assertIn("Medium", body_text)
         # เช็ค url ว่าอยู่ในรูปแบบ /list/.+ ไหม
         chai_list_url = self.browser.current_url
         self.assertRegex(chai_list_url, "/lists/.+")
@@ -65,7 +107,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.browser.get(self.live_server_url)
         # แอนเช็คว่าไม่มี "Buy peacock feathers (Medium)" บน page_text
         page_text = self.browser.find_element(By.TAG_NAME, "body").text
-        self.assertNotIn("Buy peacock feathers (Medium)", page_text)
+        self.assertNotIn("Buy peacock feathers", page_text)
         # แอนพิมพ์ "Buy milk" ลงใน inputbox
         inputbox = self.browser.find_element(By.ID, "id_new_item")
         inputbox.send_keys("Buy milk")
@@ -73,7 +115,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
         time.sleep(1)
         # แอนเช็คว่ามี "Buy milk (Medium)" บน bode_text
         body_text = self.browser.find_element(By.TAG_NAME, "body").text
-        self.assertIn("Buy milk (Medium)", body_text)
+        self.assertIn("Buy milk", body_text)
+        self.assertIn("Medium", body_text)
         # เช็ค url ว่าอยู่ในรูปแบบ /list/.+ ไหม
         ann_list_url = self.browser.current_url
         self.assertRegex(ann_list_url, "/lists/.+")
@@ -84,4 +127,3 @@ class NewVisitorTest(StaticLiveServerTestCase):
         page_text = self.browser.find_element(By.TAG_NAME, "body").text
         self.assertNotIn("Buy peacock feathers", page_text)
         self.assertIn("Buy milk", page_text)
-        
